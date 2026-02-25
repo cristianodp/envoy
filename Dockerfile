@@ -52,8 +52,8 @@ RUN cd /source && \
     --stripopt=--strip-all \
     --workspace_status_command=/usr/bin/true \
     --jobs=1 \
-    --local_ram_resources=4096 \
-    --local_cpu_resources=1 \
+    --local_resources=memory=4096 \
+    --local_resources=cpu=1 \
     //source/exe:envoy-static
 
 # Extract the built binary
