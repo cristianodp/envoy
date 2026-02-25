@@ -30,6 +30,11 @@ COPY . .
 # Remove user.bazelrc if present (contains macOS-specific flags incompatible with Linux builds)
 RUN rm -f user.bazelrc
 
+# Remove HOST_CPUS-based --jobs setting from .bazelrc to prevent failure when
+# the build node has only 1 CPU (HOST_CPUS-1 == 0, which Bazel rejects).
+# The explicit --jobs flag in the bazel build command below takes precedence.
+RUN sed -i '/^build --jobs=HOST_CPUS/d' .bazelrc
+
 # Run fix-bazel-truststore if it exists (needed for some environments)
 RUN if [ -x /tmp/fix-bazel-truststore.sh ]; then /tmp/fix-bazel-truststore.sh; fi || true
 
