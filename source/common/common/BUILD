@@ -237,6 +237,7 @@ envoy_cc_library(
     hdrs = ["base_logger.h"],
     deps = [
         "@abseil-cpp//absl/strings",
+        "@nlohmann_json//:json",
         "@spdlog",
     ],
 )

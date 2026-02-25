@@ -100,3 +100,5 @@ Builds for the ppc64le architecture or using aws-lc are not covered by the envoy
 ## Releases
 
 For further details please see our [release process](https://github.com/envoyproxy/envoy/blob/main/RELEASES.md).
+
+59EFB4A7-EC8D-4DF6-B012-9067DD1B1E03

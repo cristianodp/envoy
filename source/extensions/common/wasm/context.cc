@@ -1143,24 +1143,26 @@ Context::declareProperty(std::string_view path,
 }
 
 WasmResult Context::log(uint32_t level, std::string_view message) {
+  // Prefix with "wasmLog:" so the %Q formatter in base_logger.cc can wrap it
+  // as {"wasmLog": <value>}, embedding JSON payloads raw and plain strings quoted.
   switch (static_cast<spdlog::level::level_enum>(level)) {
   case spdlog::level::trace:
-    ENVOY_LOG(trace, "wasm log{}: {}", log_prefix(), message);
+    ENVOY_LOG(trace, "wasmLog:{}", message);
     return WasmResult::Ok;
   case spdlog::level::debug:
-    ENVOY_LOG(debug, "wasm log{}: {}", log_prefix(), message);
+    ENVOY_LOG(debug, "wasmLog:{}", message);
     return WasmResult::Ok;
   case spdlog::level::info:
-    ENVOY_LOG(info, "wasm log{}: {}", log_prefix(), message);
+    ENVOY_LOG(info, "wasmLog:{}", message);
     return WasmResult::Ok;
   case spdlog::level::warn:
-    ENVOY_LOG(warn, "wasm log{}: {}", log_prefix(), message);
+    ENVOY_LOG(warn, "wasmLog:{}", message);
     return WasmResult::Ok;
   case spdlog::level::err:
-    ENVOY_LOG(error, "wasm log{}: {}", log_prefix(), message);
+    ENVOY_LOG(error, "wasmLog:{}", message);
     return WasmResult::Ok;
   case spdlog::level::critical:
-    ENVOY_LOG(critical, "wasm log{}: {}", log_prefix(), message);
+    ENVOY_LOG(critical, "wasmLog:{}", message);
     return WasmResult::Ok;
   case spdlog::level::off:
     PANIC("not implemented");

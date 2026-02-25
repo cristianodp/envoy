@@ -321,6 +321,12 @@ void setLogFormatForLogger(spdlog::logger& logger, const std::string& log_format
           CustomFlagFormatter::ExtractedMessage::Placeholder)
       .set_pattern(log_format);
 
+  // Register "%Q": formats wasmLog:/AuditLog: prefixed messages as structured
+  // JSON objects; all other messages as plain JSON-escaped strings.
+  formatter
+      ->add_flag<Envoy::Logger::JsonMsgFormatter>('Q')
+      .set_pattern(log_format);
+
   logger.set_formatter(std::move(formatter));
 }
 
