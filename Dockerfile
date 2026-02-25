@@ -1,21 +1,29 @@
 # Multi-stage Dockerfile for building Envoy from source - Kaniko compatible
-# This Dockerfile builds Envoy exactly like the CI does: ./ci/do_ci.sh release.server_only
-#
-# Build with:
-#   docker build -f Dockerfile.local -t my-envoy:latest .
-#   OR with Kaniko:
-#   executor --dockerfile=Dockerfile.local --context=. --destination=my-envoy:latest
-#
-# No additional scripts needed - this is a complete self-contained build.
-
 # Build arguments for the build image
 # Using the tag from .github/config.yml instead of SHA for better compatibility
 ARG BUILD_IMAGE_TAG=86873047235e9b8232df989a5999b9bebf9db69c
 ARG BUILD_IMAGE_REPO=docker.io/envoyproxy/envoy-build-ubuntu
 
+# Resource profile - override at build time to match the target environment:
+#
+#  Local dev (e.g. Docker Desktop 15.6 GB):
+#    docker build --build-arg BAZEL_JOBS=10 --build-arg BAZEL_MEMORY_MB=14336 --build-arg BAZEL_CPU=10 ...
+#
+#  Cluster node (4 vCPU / 32 GB, leave headroom for kubelet):
+#    --build-arg BAZEL_JOBS=3 --build-arg BAZEL_MEMORY_MB=24576 --build-arg BAZEL_CPU=3
+
+ARG BAZEL_JOBS=10
+ARG BAZEL_MEMORY_MB=14336
+ARG BAZEL_CPU=10
+
 
 # STAGE 1: Build Envoy from source
 FROM ${BUILD_IMAGE_REPO}:${BUILD_IMAGE_TAG} AS envoy-builder
+
+# Re-declare ARGs after FROM so they are available inside the build stage
+ARG BAZEL_JOBS
+ARG BAZEL_MEMORY_MB
+ARG BAZEL_CPU
 
 # Set working directory
 WORKDIR /source
@@ -51,9 +59,9 @@ RUN cd /source && \
     -c opt \
     --stripopt=--strip-all \
     --workspace_status_command=/usr/bin/true \
-    --jobs=1 \
-    --local_resources=memory=4096 \
-    --local_resources=cpu=1 \
+    --jobs=${BAZEL_JOBS} \
+    --local_resources=memory=${BAZEL_MEMORY_MB} \
+    --local_resources=cpu=${BAZEL_CPU} \
     //source/exe:envoy-static
 
 # Extract the built binary
